@@ -1,18 +1,19 @@
 package DSP228
 
 import chisel3._
+import chisel3.experimental.FixedPoint
 
 class ButterFlyUnitIO(width: Int) extends Bundle{
-  val aReal = Input(SInt(width.W))
-  val aImg = Input(SInt(width.W))
-  val bReal = Input(SInt(width.W))
-  val bImg = Input(SInt(width.W))
-  val twiddleReal = Input(SInt(width.W))
-  val twiddleImg = Input(SInt(width.W))
-  val coutReal = Output(SInt(width.W))
-  val coutImg = Output(SInt(width.W))
-  val doutReal = Output(SInt(width.W))
-  val doutImg = Output(SInt(width.W))
+  val aReal = Input(FixedPoint(width.W, (width/2).BP))
+  val aImg = Input(FixedPoint(width.W, (width/2).BP))
+  val bReal = Input(FixedPoint(width.W, (width/2).BP))
+  val bImg = Input(FixedPoint(width.W, (width/2).BP))
+  val twiddleReal = Input(FixedPoint(width.W, (width/2).BP))
+  val twiddleImg = Input(FixedPoint(width.W, (width/2).BP))
+  val coutReal = Output(FixedPoint(width.W, (width/2).BP))
+  val coutImg = Output(FixedPoint(width.W, (width/2).BP))
+  val doutReal = Output(FixedPoint(width.W, (width/2).BP))
+  val doutImg = Output(FixedPoint(width.W, (width/2).BP))
 }
 class ButterflyUnit(width: Int) extends Module {
   val mul = Module(new ComplexMul(width))
