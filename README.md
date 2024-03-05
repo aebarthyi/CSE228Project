@@ -7,7 +7,7 @@ If you haven't installed it before, follow the directions from this [link](https
 Clone the repo to your machine, and run the following commands in order:
 1. `cd CSE228Project`
 2. `sbt`
-3. `compile`\
+3. `compile`
 
 After following these steps you will have compiled the project
 ## Current Status
