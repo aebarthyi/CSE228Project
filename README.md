@@ -10,16 +10,24 @@ Clone the repo to your machine, and run the following commands in order:
 3. `compile`
 
 After following these steps you will have compiled the project
+
 ## Things that work:
 1. Complex Multiplier and Tester
 2. Butterfly Unit and Tester
 3. Twiddle Factor ROM and Tester
 4. Bit Reverse model (for use to test the AGU)
+
 ## Work in progress:
 1. Address Generation Unit
 2. Memory
 3. Filters
 4. Forward and Inverse FFT blocks (or singular butterfly units, depending on multipliers specified)
 
-## Current Status
-We are in the early development stages of this project. So far we have been able to complete working on the butterfly unit, twiddle factor LUT and bit reversal components in our FFT design.
+## How to test
+Once the sbt kernel has been run, you can test all of the created tests by running the `test` command.\
+If you want to test individual components you can do so my using the `testOnly *testClass` command instead.\
+The test classes that are currently supported are:
+1. `BitReversalTester`
+2. `ButterflyUnitTester`
+3. `ComplexMulModelTester`
+4. `TwiddleFactorTester`
