@@ -6,5 +6,5 @@ If you haven't installed it before, follow the directions from this [link](https
 ## Getting Started
 Clone the repo to your machine, and run the following commands in order:
 1. `cd CSE228Project`
-2. `sbt`\
-Now you will be able to compile the project and test it out.
+2. `sbt`
+3. `compile`
