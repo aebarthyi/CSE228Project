@@ -24,8 +24,8 @@ After following these steps you will have compiled the project
 4. Forward and Inverse FFT blocks (or singular butterfly units, depending on multipliers specified)
 
 ## How to test
-Once the sbt kernel has been run, you can test all of the created tests by running the `test` command.\
-If you want to test individual components you can do so my using the `testOnly *testClass` command instead.\
+Once the sbt kernel is opened up (Done by step 2 of Getting Started), you can test all of the created tests by running the `test` command.\
+If you want to test individual components you can do so by running the `testOnly *testClass` command in the sbt kernel instead.\
 The test classes that are currently supported are:
 1. `BitReversalTester`
 2. `ButterflyUnitTester`
