@@ -8,6 +8,7 @@ Clone the repo to your machine, and run the following commands in order:
 1. `cd CSE228Project`
 2. `sbt`
 3. `compile`
+
 After following these steps you will have compiled the project
 ## Things that work:
 1. Complex Multiplier and Tester
