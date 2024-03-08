@@ -4,12 +4,16 @@ import chisel3.util._
 import chisel3.experimental.FixedPoint
 
 class RAMUnitIO(NumEntries: Int) extends Bundle {
-    val read = Input(Bool())
-    val in_valid = Input(Bool())
+    // read or write signal
+    val read = Flipped(Valid(Bool())) // if read.bits = high then read, else write
+    
+    // writing inputs
     val in_data1 = Input(FixedPoint(32.W, 8.BP))
     val in_data2 = Input(FixedPoint(32.W, 8.BP))
+    
     val addr1 = Input(UInt(log2Ceil(NumEntries).W))
     val addr2 = Input(UInt(log2Ceil(NumEntries).W))
+    
     val out_valid = Output(Bool())
     val out1 = Output(FixedPoint(32.W, 8.BP))
     val out2 = Output(FixedPoint(32.W, 8.BP))
