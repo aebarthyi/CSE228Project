@@ -25,7 +25,7 @@ class RAMUnitIO(NumEntries: Int) extends Bundle {
 
 class RAM(NumEntries: Int) extends Module {
     val io = IO(new RAMUnitIO(NumEntries))
-    // TODO: Do we need a valid signal?
+    // TODO: ???
     val mem1 = SyncReadMem(NumEntries, FixedPoint(32.W, 8.BP))
     val mem2 = SyncReadMem(NumEntries, FixedPoint(32.W, 8.BP))
     
