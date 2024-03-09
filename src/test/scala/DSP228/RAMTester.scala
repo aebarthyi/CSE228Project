@@ -8,6 +8,9 @@ class RAMTester extends AnyFlatSpec with ChiselScalatestTester {
     behavior of "RAM"
     it should "correctly writes two floats to RAM then reads them back" in {
         test(new RAM(8)) { dut =>
+            // enable
+            dut.io.enable.poke(true.B)
+            
             // write signal
             dut.io.read.poke(false.B)
             dut.io.in_data1.poke(5.F(32.W, 8.BP))

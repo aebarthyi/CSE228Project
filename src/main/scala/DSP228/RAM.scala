@@ -4,6 +4,9 @@ import chisel3.util._
 import chisel3.experimental.FixedPoint
 
 class RAMUnitIO(NumEntries: Int) extends Bundle {
+    // enable signal
+    val enable = Input(Bool())
+
     // read or write signal
     val read = Input(Bool()) // if read = high then read, else write
     
@@ -22,20 +25,21 @@ class RAMUnitIO(NumEntries: Int) extends Bundle {
 
 class RAM(NumEntries: Int) extends Module {
     val io = IO(new RAMUnitIO(NumEntries))
-    // TODO: Implement Behavior
+    // TODO: Do we need a valid signal?
     val mem1 = SyncReadMem(NumEntries, FixedPoint(32.W, 8.BP))
     val mem2 = SyncReadMem(NumEntries, FixedPoint(32.W, 8.BP))
     
     io.out1 := DontCare
     io.out2 := DontCare
-    
-    val rdwr_port1 = mem1(io.addr1)
-    val rdwr_port2 = mem1(io.addr2)
-    when(io.read) {
-        io.out1 := rdwr_port1
-        io.out2 := rdwr_port2
-    } .otherwise {
-        rdwr_port1 := io.in_data1
-        rdwr_port2 := io.in_data2
+    when(io.enable) {
+        val rdwr_port1 = mem1(io.addr1)
+        val rdwr_port2 = mem1(io.addr2)
+        when(io.read) {
+            io.out1 := rdwr_port1
+            io.out2 := rdwr_port2
+        } .otherwise {
+            rdwr_port1 := io.in_data1
+            rdwr_port2 := io.in_data2
+        }
     }
 }
