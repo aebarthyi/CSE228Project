@@ -18,7 +18,7 @@ After following these steps you will have compiled the project
 2. Butterfly Unit and Tester
 3. Twiddle Factor ROM and Tester
 4. Bit Reverse model (for use to test the AGU)
-5. Memory
+5. Memory and Tester
 
 ## Work in progress:
 1. Address Generation Unit
