@@ -38,4 +38,24 @@ class RAMTester extends AnyFlatSpec with ChiselScalatestTester {
         }
     }
 
+    it should "correctly write to all RAM and read it all back" in {
+        test(new RAM(16)) { dut =>
+            for(i <- 0 until 16) {
+                doWriteTest(dut, i.toDouble, i.toDouble, i, i)
+            }
+
+            for(j <- 0 until 16) {
+                doReadTest(dut, j.toDouble, j.toDouble, j, j)
+            }
+        }
+    }
+
+    it should "correctly write one and read one element to the entire RAM" in {
+        test(new RAM(32)) { dut =>
+            for (i <- 0 until 32) {
+                doWriteTest(dut, i.toDouble, i.toDouble, i, i)
+                doReadTest(dut, i.toDouble, i.toDouble, i, i)
+            }
+        }
+    }
 }
