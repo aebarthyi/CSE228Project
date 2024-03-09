@@ -33,3 +33,4 @@ The test classes that are currently supported are:
 2. `ButterflyUnitTester`
 3. `ComplexMulModelTester`
 4. `TwiddleFactorTester`
+5. `RAMTester`
