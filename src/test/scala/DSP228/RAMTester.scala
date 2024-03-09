@@ -6,18 +6,24 @@ import org.scalatest.flatspec.AnyFlatSpec
 
 class RAMTester extends AnyFlatSpec with ChiselScalatestTester {
     behavior of "RAM"
-    it should "correctly have output valid false" in {
+    it should "correctly writes two floats to RAM then reads them back" in {
         test(new RAM(8)) { dut =>
-            dut.io.read.valid.poke(false.B)
-            dut.io.read.bits.poke(true.B)
-            dut.io.in_data1.poke(0.F(32.W, 8.BP))
-            dut.io.in_data2.poke(0.F(32.W, 8.BP))
+            // write signal
+            dut.io.read.poke(false.B)
+            dut.io.in_data1.poke(5.F(32.W, 8.BP))
+            dut.io.in_data2.poke(7.F(32.W, 8.BP))
             dut.io.addr1.poke(0.U)
-            dut.io.addr2.poke(0.U)
+            dut.io.addr2.poke(1.U)
+            dut.clock.step(2)
 
-            dut.io.out_valid.expect(false.B)
-            dut.io.out1.expect(0.F(32.W, 8.BP))
-            dut.io.out2.expect(0.F(32.W, 8.BP))
+            // read signal
+            dut.io.read.poke(true.B)
+            dut.io.addr1.poke(0.U)
+            dut.io.addr2.poke(1.U)
+            dut.clock.step()
+            dut.io.out1.expect(5.F(32.W, 8.BP))
+            dut.io.out2.expect(7.F(32.W, 8.BP))
+            dut.clock.step()
         }
     }
 
