@@ -11,35 +11,51 @@ class RAMUnitIO(NumEntries: Int) extends Bundle {
     val read = Input(Bool()) // if read = high then read, else write
     
     // writing inputs
-    val in_data1 = Input(FixedPoint(32.W, 8.BP))
-    val in_data2 = Input(FixedPoint(32.W, 8.BP))
+    val realIn1 = Input(FixedPoint(32.W, 8.BP))
+    val realIn2 = Input(FixedPoint(32.W, 8.BP))
+    val imagIn1 = Input(FixedPoint(32.W, 8.BP))
+    val imagIn2 = Input(FixedPoint(32.W, 8.BP))
     
     // addresses
     val addr1 = Input(UInt(log2Ceil(NumEntries).W))
     val addr2 = Input(UInt(log2Ceil(NumEntries).W))
     
     // output signals
-    val out1 = Output(FixedPoint(32.W, 8.BP))
-    val out2 = Output(FixedPoint(32.W, 8.BP))
+    val realOut1 = Output(FixedPoint(32.W, 8.BP))
+    val realOut2 = Output(FixedPoint(32.W, 8.BP))
+    val imagOut1 = Output(FixedPoint(32.W, 8.BP))
+    val imagOut2 = Output(FixedPoint(32.W, 8.BP))
 }
 
 class RAM(NumEntries: Int) extends Module {
     val io = IO(new RAMUnitIO(NumEntries))
     // TODO: ???
-    val mem1 = SyncReadMem(NumEntries, FixedPoint(32.W, 8.BP))
-    val mem2 = SyncReadMem(NumEntries, FixedPoint(32.W, 8.BP))
+    val realMem1 = SyncReadMem(NumEntries, FixedPoint(32.W, 8.BP))
+    val realMem2 = SyncReadMem(NumEntries, FixedPoint(32.W, 8.BP))
+    val imagMem1 = SyncReadMem(NumEntries, FixedPoint(32.W, 8.BP))
+    val imagMem2 = SyncReadMem(NumEntries, FixedPoint(32.W, 8.BP))
     
-    io.out1 := DontCare
-    io.out2 := DontCare
+    io.realOut1 := DontCare
+    io.realOut2 := DontCare
+    io.imagOut1 := DontCare
+    io.imagOut2 := DontCare
+    
     when(io.enable) {
-        val rdwr_port1 = mem1(io.addr1)
-        val rdwr_port2 = mem1(io.addr2)
+        val rdwr_real1 = realMem1(io.addr1)
+        val rdwr_real2 = realMem2(io.addr2)
+        val rdwr_imag1 = imagMem1(io.addr1)
+        val rdwr_imag2 = imagMem2(io.addr2)
+        
         when(io.read) {
-            io.out1 := rdwr_port1
-            io.out2 := rdwr_port2
+            io.realOut1 := rdwr_real1
+            io.realOut2 := rdwr_real2
+            io.imagOut1 := rdwr_imag1
+            io.imagOut2 := rdwr_imag2
         } .otherwise {
-            rdwr_port1 := io.in_data1
-            rdwr_port2 := io.in_data2
+            rdwr_real1 := io.realIn1
+            rdwr_real2 := io.realIn2
+            rdwr_imag1 := io.imagIn1
+            rdwr_imag2 := io.imagIn2
         }
     }
 }
