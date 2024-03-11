@@ -20,7 +20,7 @@ class FFTTester extends AnyFlatSpec with ChiselScalatestTester{
 
   behavior of "FFT"
   it should "correctly calculate addresses for 8 points, 3 stages" in {
-    testFFT(8, 16)
+    testFFT(8, 24)
   }
 
   it should "correctly calculate addresses for 32 points, 5 stages" in {

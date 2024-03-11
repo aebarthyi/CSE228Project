@@ -18,7 +18,7 @@ class FFT(points: Int, width: Int) extends Module {
   val fftMem = Module(new RAM(points))
   val butterfly = Module(new ButterflyUnit(width))
   val agu = Module(new AddressGenerationUnit(points))
-  val twiddleRom = Module(new TwiddleFactor(points/2))
+  val twiddleRom = Module(new TwiddleFactor(points/2, width))
   val startCounter = Wire(Bool())
   val (bitReversedCounter, wrap) = Counter(0 until points, startCounter)
   startCounter := false.B
