@@ -6,37 +6,47 @@ import chisel3.util._
 
 //stages 0-log2(points)
 
-class AddressGenerationIO(points: Int, width: Int) extends Bundle{
+class AddressGenerationIO(points: Int) extends Bundle{
   val en = Input(Bool())
-  val stage = Input(UInt(log2Ceil(points).W))
-  val addressA = Output(UInt(width.W))
-  val addressB = Output(UInt(width.W))
-  val twiddleAddress = Output(UInt(width.W))
+  val done = Output(Bool())
+  val addressA = Output(UInt(log2Ceil(points).W))
+  val addressB = Output(UInt(log2Ceil(points).W))
+  val twiddleAddress = Output(UInt(log2Ceil(points).W))
 }
-class AddressGenerationUnit(points: Int, width: Int) extends Module{
-  val io = IO(new AddressGenerationIO(points, width))
+class AddressGenerationUnit(points: Int) extends Module{
+  val io = IO(new AddressGenerationIO(points))
   val resetCounter = Wire(Bool())
-  val addressAoff = Wire(UInt(width.W))
-  val aCicularShiftFirst = Wire(UInt(width.W))
-  val aCicularShiftSecond = Wire(UInt(width.W))
-  val addressBoff = Wire(UInt(width.W))
-  val bCicularShiftFirst = Wire(UInt(width.W))
-  val bCicularShiftSecond = Wire(UInt(width.W))
+  val addressAoff = Wire(UInt(log2Ceil(points).W))
+  val aCicularShiftFirst = Wire(UInt(log2Ceil(points).W))
+  val aCicularShiftSecond = Wire(UInt(log2Ceil(points).W))
+  val addressBoff = Wire(UInt(log2Ceil(points).W))
+  val bCicularShiftFirst = Wire(UInt(log2Ceil(points).W))
+  val bCicularShiftSecond = Wire(UInt(log2Ceil(points).W))
   val (counter, wrap) = Counter(0 until points/2, io.en, resetCounter )
-  val twiddleMask = ShiftRegisters(1.B, width-1, 0.U(1.W), wrap)
+  val stageCounter = new Counter(log2Ceil(points))
+  val twiddleMask = ShiftRegisters(1.B, log2Ceil(points)-1, 0.U(1.W), wrap)
   resetCounter := false.B
+  io.done := false.B
   addressAoff := (counter << 1)
   addressBoff := addressAoff + 1.U
 
-  aCicularShiftFirst := (addressAoff << io.stage)
-  bCicularShiftFirst := (addressBoff << io.stage)
+  aCicularShiftFirst := (addressAoff << stageCounter.value)
+  bCicularShiftFirst := (addressBoff <<  stageCounter.value)
 
-  aCicularShiftSecond := (addressAoff >> (log2Ceil(points).U - io.stage))
-  bCicularShiftSecond := (addressBoff >> (log2Ceil(points).U - io.stage))
+  aCicularShiftSecond := (addressAoff >> (log2Ceil(points).U -  stageCounter.value))
+  bCicularShiftSecond := (addressBoff >> (log2Ceil(points).U -  stageCounter.value))
 
   io.addressA := aCicularShiftFirst | aCicularShiftSecond
   io.addressB := bCicularShiftFirst | bCicularShiftSecond
 
   io.twiddleAddress := Cat(twiddleMask) & counter
+
+  when(wrap){
+    stageCounter.inc()
+  }
+
+  when(stageCounter.value === (log2Ceil(points)-1).U && wrap){
+    io.done := true.B
+  }
 }
 
