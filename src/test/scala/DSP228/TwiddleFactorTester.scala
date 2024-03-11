@@ -15,12 +15,12 @@ class TwiddleFactorTester extends AnyFlatSpec with ChiselScalatestTester {
 
     behavior of "TwiddleFactor"
     it should "correctly calculate Twiddle Factor" in {
-        test(new TwiddleFactor(8)) { dut =>
+        test(new TwiddleFactor(8, 32)) { dut =>
             for (j <- 0 until 8) {
                 dut.io.m.poke(j.U)
                 val twiddleTuple = twiddleFactorModel(j,8) 
-                dut.io.twiddleFactorReal.expect(twiddleTuple._1.F(32.W, 8.BP))
-                dut.io.twiddleFactorImag.expect(twiddleTuple._2.F(32.W, 8.BP))
+                dut.io.twiddleFactorReal.expect(twiddleTuple._1.F(32.W, 30.BP))
+                dut.io.twiddleFactorImag.expect(twiddleTuple._2.F(32.W, 30.BP))
             }
         }
     }
