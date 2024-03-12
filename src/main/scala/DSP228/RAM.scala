@@ -30,10 +30,8 @@ class RAMUnitIO(NumEntries: Int, width: Int) extends Bundle {
 class RAM(NumEntries: Int, width: Int) extends Module {
     val io = IO(new RAMUnitIO(NumEntries, width))
     // TODO: ???
-    val realMem1 = SyncReadMem(NumEntries, FixedPoint(width.W, (width-2).BP))
-    val realMem2 = SyncReadMem(NumEntries, FixedPoint(width.W, (width-2).BP))
-    val imagMem1 = SyncReadMem(NumEntries, FixedPoint(width.W, (width-2).BP))
-    val imagMem2 = SyncReadMem(NumEntries, FixedPoint(width.W, (width-2).BP))
+    val realMem = SyncReadMem(NumEntries, FixedPoint(width.W, (width-2).BP))
+    val imagMem = SyncReadMem(NumEntries, FixedPoint(width.W, (width-2).BP))
     
     io.realOut1 := DontCare
     io.realOut2 := DontCare
@@ -41,10 +39,10 @@ class RAM(NumEntries: Int, width: Int) extends Module {
     io.imagOut2 := DontCare
     
     when(io.enable) {
-        val rdwr_real1 = realMem1(io.addr1)
-        val rdwr_real2 = realMem2(io.addr2)
-        val rdwr_imag1 = imagMem1(io.addr1)
-        val rdwr_imag2 = imagMem2(io.addr2)
+        val rdwr_real1 = realMem(io.addr1)
+        val rdwr_real2 = realMem(io.addr2)
+        val rdwr_imag1 = imagMem(io.addr1)
+        val rdwr_imag2 = imagMem(io.addr2)
         
         when(io.read) {
             io.realOut1 := rdwr_real1
