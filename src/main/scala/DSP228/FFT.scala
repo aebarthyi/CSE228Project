@@ -5,7 +5,7 @@ import chisel3.experimental.FixedPoint
 import chisel3.util._
 
 object FFTState extends ChiselEnum {
-  val idle, load, calculateStage, out = Value
+  val idle, load, calculateStage, writeStage, out = Value
 }
 class FFTIO(points: Int, width: Int) extends Bundle{
   val in = Flipped(Decoupled(FixedPoint(width.W, (width/2).BP)))
@@ -29,7 +29,7 @@ class FFT(points: Int, width: Int) extends Module {
   butterfly.io.bImg := 0.F(width.W, (width/2).BP)
   butterfly.io.twiddleReal := 0.F(width.W, (width/2).BP)
   butterfly.io.twiddleImg := 0.F(width.W, (width/2).BP)
-  agu.io.en := false.B
+  agu.io.advance := false.B
   io.in.ready := true.B
   io.out.bits(0) := 0.F(width.W, (width/2).BP)
   io.out.bits(1) := 0.F(width.W, (width/2).BP)
@@ -65,19 +65,19 @@ class FFT(points: Int, width: Int) extends Module {
       fftMem.io.imagIn1 := 0.F(width.W, (width/2).BP)
       fftMem.io.addr1 := Reverse(bitReversedCounter)
       when(wrap){
+        fftMem.io.read := true.B
         fftState := FFTState.calculateStage
       }
     }
 
     is(FFTState.calculateStage){
+      agu.io.advance := false.B
       fftMem.io.enable := true.B
       fftMem.io.read := true.B
       startCounter := false.B
       fftMem.io.addr1 := agu.io.addressA
       fftMem.io.addr2 := agu.io.addressB
       twiddleRom.io.m := agu.io.twiddleAddress
-
-      agu.io.en := true.B
 
       butterfly.io.aReal := fftMem.io.realOut1
       butterfly.io.bReal := fftMem.io.realOut2
@@ -91,8 +91,17 @@ class FFT(points: Int, width: Int) extends Module {
       fftMem.io.imagIn1 := butterfly.io.coutImg
       fftMem.io.imagIn1 := butterfly.io.doutImg
 
+      fftState := FFTState.writeStage
+    }
+
+    is(FFTState.writeStage){
+      fftMem.io.enable := true.B
+      fftMem.io.read := false.B
       when(agu.io.done){
         fftState := FFTState.out
+      }.otherwise {
+        agu.io.advance := true.B
+        fftState := FFTState.calculateStage
       }
     }
 

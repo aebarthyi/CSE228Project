@@ -7,7 +7,7 @@ import chisel3.util._
 //stages 0-log2(points)
 
 class AddressGenerationIO(points: Int) extends Bundle{
-  val en = Input(Bool())
+  val advance = Input(Bool())
   val done = Output(Bool())
   val addressA = Output(UInt(log2Ceil(points).W))
   val addressB = Output(UInt(log2Ceil(points).W))
@@ -16,18 +16,21 @@ class AddressGenerationIO(points: Int) extends Bundle{
 class AddressGenerationUnit(points: Int) extends Module{
   val io = IO(new AddressGenerationIO(points))
   val resetCounter = Wire(Bool())
+  val shift = Wire(Bool())
   val addressAoff = Wire(UInt(log2Ceil(points).W))
   val aCicularShiftFirst = Wire(UInt(log2Ceil(points).W))
   val aCicularShiftSecond = Wire(UInt(log2Ceil(points).W))
   val addressBoff = Wire(UInt(log2Ceil(points).W))
   val bCicularShiftFirst = Wire(UInt(log2Ceil(points).W))
   val bCicularShiftSecond = Wire(UInt(log2Ceil(points).W))
-  val (counter, wrap) = Counter(0 until points/2, io.en, resetCounter )
+  val counter = Counter(points/2)
   val stageCounter = new Counter(log2Ceil(points))
-  val twiddleMask = ShiftRegisters(1.B, log2Ceil(points)-1, 0.U(1.W), wrap)
+  val twiddleMask = ShiftRegisters(1.B, log2Ceil(points)-1, 0.U(1.W), shift)
+
+  shift := false.B
   resetCounter := false.B
   io.done := false.B
-  addressAoff := (counter << 1)
+  addressAoff := (counter.value << 1)
   addressBoff := addressAoff + 1.U
 
   aCicularShiftFirst := (addressAoff << stageCounter.value)
@@ -39,13 +42,16 @@ class AddressGenerationUnit(points: Int) extends Module{
   io.addressA := aCicularShiftFirst | aCicularShiftSecond
   io.addressB := bCicularShiftFirst | bCicularShiftSecond
 
-  io.twiddleAddress := Cat(twiddleMask) & counter
+  io.twiddleAddress := Cat(twiddleMask) & counter.value
 
-  when(wrap){
+  when(io.advance){
+    counter.inc()
+  }
+  when(counter.value === ((points/2)-1).U && io.advance){
+    shift := true.B
     stageCounter.inc()
   }
-
-  when(stageCounter.value === (log2Ceil(points)-1).U && wrap){
+  when(stageCounter.value === (log2Ceil(points)-1).U && counter.value === ((points/2)-1).U){
     io.done := true.B
   }
 }

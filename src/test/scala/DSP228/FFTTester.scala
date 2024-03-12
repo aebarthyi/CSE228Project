@@ -14,7 +14,11 @@ class FFTTester extends AnyFlatSpec with ChiselScalatestTester{
         dut.io.in.bits.poke(sineWave440hz(i))
         dut.clock.step()
       }
-      dut.clock.step(points*2)
+      dut.clock.step(points*3)
+      for(i <- 0 until points){
+        println(dut.io.out.bits.peek()))
+        dut.clock.step()
+      }
     }
   }
 

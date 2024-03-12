@@ -25,7 +25,7 @@ class AddressGenerationTester extends AnyFlatSpec with ChiselScalatestTester {
   }
   def testAGU(points: Int, stages: Int) = {
     test(new AddressGenerationUnit(points)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-      dut.io.en.poke(true.B)
+      dut.io.advance.poke(false.B)
       var addrA = 0
       var addrB = 0
       val indexes = new ListBuffer[Int]()
@@ -38,6 +38,7 @@ class AddressGenerationTester extends AnyFlatSpec with ChiselScalatestTester {
         println("stage " + j)
         println()
         for (i <- 0 until (points / 2)) {
+          dut.io.advance.poke(true.B)
           addrA = 2 * i
           addrB = addrA + 1
           indexes(addrA) = addressGenerationUnit(points, j, stages, addrA, addrB)._1
