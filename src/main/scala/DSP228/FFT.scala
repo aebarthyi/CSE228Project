@@ -15,7 +15,7 @@ class FFTIO(points: Int, width: Int) extends Bundle{
 class FFT(points: Int, width: Int) extends Module {
   val io = IO(new FFTIO(points, width))
   val fftState = RegInit(FFTState.idle)
-  val fftMem = Module(new RAM(points))
+  val fftMem = Module(new RAM(points, width))
   val butterfly = Module(new ButterflyUnit(width))
   val agu = Module(new AddressGenerationUnit(points))
   val twiddleRom = Module(new TwiddleFactor(points/2, width))

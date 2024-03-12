@@ -3,7 +3,7 @@ import chisel3._
 import chisel3.util._
 import chisel3.experimental.FixedPoint
 
-class RAMUnitIO(NumEntries: Int) extends Bundle {
+class RAMUnitIO(NumEntries: Int, width: Int) extends Bundle {
     // enable signal
     val enable = Input(Bool())
 
@@ -11,29 +11,29 @@ class RAMUnitIO(NumEntries: Int) extends Bundle {
     val read = Input(Bool()) // if read = high then read, else write
     
     // writing inputs
-    val realIn1 = Input(FixedPoint(32.W, 8.BP))
-    val realIn2 = Input(FixedPoint(32.W, 8.BP))
-    val imagIn1 = Input(FixedPoint(32.W, 8.BP))
-    val imagIn2 = Input(FixedPoint(32.W, 8.BP))
+    val realIn1 = Input(FixedPoint(width.W, (width/2).BP))
+    val realIn2 = Input(FixedPoint(width.W, (width/2).BP))
+    val imagIn1 = Input(FixedPoint(width.W, (width/2).BP))
+    val imagIn2 = Input(FixedPoint(width.W, (width/2).BP))
     
     // addresses
     val addr1 = Input(UInt(log2Ceil(NumEntries).W))
     val addr2 = Input(UInt(log2Ceil(NumEntries).W))
     
     // output signals
-    val realOut1 = Output(FixedPoint(32.W, 8.BP))
-    val realOut2 = Output(FixedPoint(32.W, 8.BP))
-    val imagOut1 = Output(FixedPoint(32.W, 8.BP))
-    val imagOut2 = Output(FixedPoint(32.W, 8.BP))
+    val realOut1 = Output(FixedPoint(width.W, (width/2).BP))
+    val realOut2 = Output(FixedPoint(width.W, (width/2).BP))
+    val imagOut1 = Output(FixedPoint(width.W, (width/2).BP))
+    val imagOut2 = Output(FixedPoint(width.W, (width/2).BP))
 }
 
-class RAM(NumEntries: Int) extends Module {
-    val io = IO(new RAMUnitIO(NumEntries))
+class RAM(NumEntries: Int, width: Int) extends Module {
+    val io = IO(new RAMUnitIO(NumEntries, width))
     // TODO: ???
-    val realMem1 = SyncReadMem(NumEntries, FixedPoint(32.W, 8.BP))
-    val realMem2 = SyncReadMem(NumEntries, FixedPoint(32.W, 8.BP))
-    val imagMem1 = SyncReadMem(NumEntries, FixedPoint(32.W, 8.BP))
-    val imagMem2 = SyncReadMem(NumEntries, FixedPoint(32.W, 8.BP))
+    val realMem1 = SyncReadMem(NumEntries, FixedPoint(width.W, (width/2).BP))
+    val realMem2 = SyncReadMem(NumEntries, FixedPoint(width.W, (width/2).BP))
+    val imagMem1 = SyncReadMem(NumEntries, FixedPoint(width.W, (width/2).BP))
+    val imagMem2 = SyncReadMem(NumEntries, FixedPoint(width.W, (width/2).BP))
     
     io.realOut1 := DontCare
     io.realOut2 := DontCare
