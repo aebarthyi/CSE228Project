@@ -4,16 +4,16 @@ import chisel3._
 import chisel3.experimental.FixedPoint
 
 class ButterFlyUnitIO(width: Int) extends Bundle{
-  val aReal = Input(FixedPoint(width.W, (width/2).BP))
-  val aImg = Input(FixedPoint(width.W, (width/2).BP))
-  val bReal = Input(FixedPoint(width.W, (width/2).BP))
-  val bImg = Input(FixedPoint(width.W, (width/2).BP))
-  val twiddleReal = Input(FixedPoint(width.W, (width/2).BP))
-  val twiddleImg = Input(FixedPoint(width.W, (width/2).BP))
-  val coutReal = Output(FixedPoint(width.W, (width/2).BP))
-  val coutImg = Output(FixedPoint(width.W, (width/2).BP))
-  val doutReal = Output(FixedPoint(width.W, (width/2).BP))
-  val doutImg = Output(FixedPoint(width.W, (width/2).BP))
+  val aReal = Input(FixedPoint(width.W, (width-2).BP))
+  val aImg = Input(FixedPoint(width.W, (width-2).BP))
+  val bReal = Input(FixedPoint(width.W, (width-2).BP))
+  val bImg = Input(FixedPoint(width.W, (width-2).BP))
+  val twiddleReal = Input(FixedPoint(width.W, (width-2).BP))
+  val twiddleImg = Input(FixedPoint(width.W, (width-2).BP))
+  val coutReal = Output(FixedPoint(width.W, (width-2).BP))
+  val coutImg = Output(FixedPoint(width.W, (width-2).BP))
+  val doutReal = Output(FixedPoint(width.W, (width-2).BP))
+  val doutImg = Output(FixedPoint(width.W, (width-2).BP))
 }
 class ButterflyUnit(width: Int) extends Module {
   val mul = Module(new ComplexMul(width))
