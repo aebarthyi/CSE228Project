@@ -8,8 +8,8 @@ object FFTState extends ChiselEnum {
   val idle, load, calculateStage, writeStage, out = Value
 }
 class FFTIO(points: Int, width: Int) extends Bundle{
-  val in = Flipped(Decoupled(FixedPoint(width.W, (width/2).BP)))
-  val out = Decoupled(Vec(2, FixedPoint(width.W, (width/2).BP)))
+  val in = Flipped(Decoupled(FixedPoint(width.W, (width-2).BP)))
+  val out = Decoupled(Vec(2, FixedPoint(width.W, (width-2).BP)))
 }
 
 class FFT(points: Int, width: Int) extends Module {
@@ -23,23 +23,23 @@ class FFT(points: Int, width: Int) extends Module {
   val (bitReversedCounter, wrap) = Counter(0 until points, startCounter)
   startCounter := false.B
   twiddleRom.io.m := 0.U
-  butterfly.io.aReal := 0.F(width.W, (width/2).BP)
-  butterfly.io.bReal := 0.F(width.W, (width/2).BP)
-  butterfly.io.aImg := 0.F(width.W, (width/2).BP)
-  butterfly.io.bImg := 0.F(width.W, (width/2).BP)
-  butterfly.io.twiddleReal := 0.F(width.W, (width/2).BP)
-  butterfly.io.twiddleImg := 0.F(width.W, (width/2).BP)
+  butterfly.io.aReal := 0.F(width.W, (width-2).BP)
+  butterfly.io.bReal := 0.F(width.W, (width-2).BP)
+  butterfly.io.aImg := 0.F(width.W, (width-2).BP)
+  butterfly.io.bImg := 0.F(width.W, (width-2).BP)
+  butterfly.io.twiddleReal := 0.F(width.W, (width-2).BP)
+  butterfly.io.twiddleImg := 0.F(width.W, (width-2).BP)
   agu.io.advance := false.B
   io.in.ready := true.B
-  io.out.bits(0) := 0.F(width.W, (width/2).BP)
-  io.out.bits(1) := 0.F(width.W, (width/2).BP)
+  io.out.bits(0) := 0.F(width.W, (width-2).BP)
+  io.out.bits(1) := 0.F(width.W, (width-2).BP)
   io.out.valid := false.B
   fftMem.io.addr1 := 0.U
   fftMem.io.addr2 := 0.U
-  fftMem.io.realIn1 := 0.F(width.W, (width/2).BP)
-  fftMem.io.realIn2 := 0.F(width.W, (width/2).BP)
-  fftMem.io.imagIn1 := 0.F(width.W, (width/2).BP)
-  fftMem.io.imagIn2 := 0.F(width.W, (width/2).BP)
+  fftMem.io.realIn1 := 0.F(width.W, (width-2).BP)
+  fftMem.io.realIn2 := 0.F(width.W, (width-2).BP)
+  fftMem.io.imagIn1 := 0.F(width.W, (width-2).BP)
+  fftMem.io.imagIn2 := 0.F(width.W, (width-2).BP)
   fftMem.io.read := false.B
   fftMem.io.enable := false.B
 
@@ -53,7 +53,7 @@ class FFT(points: Int, width: Int) extends Module {
         fftState := FFTState.load
         startCounter := true.B
         fftMem.io.realIn1 := io.in.bits
-        fftMem.io.imagIn1 := 0.F(width.W, (width/2).BP)
+        fftMem.io.imagIn1 := 0.F(width.W, (width-2).BP)
         fftMem.io.addr1 := Reverse(bitReversedCounter)
       }
     }
@@ -62,7 +62,7 @@ class FFT(points: Int, width: Int) extends Module {
       fftMem.io.enable := true.B
       startCounter := true.B
       fftMem.io.realIn1 := io.in.bits
-      fftMem.io.imagIn1 := 0.F(width.W, (width/2).BP)
+      fftMem.io.imagIn1 := 0.F(width.W, (width-2).BP)
       fftMem.io.addr1 := Reverse(bitReversedCounter)
       when(wrap){
         fftMem.io.read := true.B
