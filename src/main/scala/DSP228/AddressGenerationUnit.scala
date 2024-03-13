@@ -50,6 +50,7 @@ class AddressGenerationUnit(points: Int) extends Module{
   when(counter.value === ((points/2)-1).U && io.advance){
     shift := true.B
     stageCounter.inc()
+    printf(cf"stage ${stageCounter.value}\n\n\n")
   }
   when(stageCounter.value === (log2Ceil(points)-1).U && counter.value === ((points/2)-1).U){
     io.done := true.B

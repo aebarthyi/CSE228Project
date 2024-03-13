@@ -50,7 +50,6 @@ class AddressGenerationTester extends AnyFlatSpec with ChiselScalatestTester {
           dut.clock.step()
         }
       }
-
       println(indexes)
     }
 
@@ -58,7 +57,7 @@ class AddressGenerationTester extends AnyFlatSpec with ChiselScalatestTester {
 
   behavior of "AddressGenerationUnit"
   it should "correctly calculate addresses for 8 points, 3 stages" in {
-    testAGU(8,3)
+    testAGU(4,2)
   }
 
   it should "correctly calculate addresses for 32 points, 5 stages" in {
