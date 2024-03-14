@@ -44,9 +44,9 @@ class ButterflyUnitTester extends AnyFlatSpec with ChiselScalatestTester{
   }
 
   it should "CHISEL: correctly calculate butterfly of x0(3 + 2j) and x1(2 + 5j) with twiddle of w(4 - 3j)" in {
-    val twiddle = (-1.0, 0.0) //4 - 3j
-    val x0 = (0.0,0.0) //3 + 2j
-    val x1 = (2.0,0.0) //2 + 5j
+    val twiddle = (0.0, 1.0) //4 - 3j
+    val x0 = (-2.0,0.0) //3 + 2j
+    val x1 = (-2.0,0.0) //2 + 5j
     testButterflyUnit(x0, x1, twiddle)
   }
 }

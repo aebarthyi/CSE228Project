@@ -5,7 +5,7 @@ import chisel3.experimental.FixedPoint
 import chisel3.util._
 
 object FFTState extends ChiselEnum {
-  val idle, loadBuffer, loadRam, calculateStage, writeStage, waitForRead, out = Value
+  val idle, loadBuffer, loadRam, calculateStage, writeStage, out = Value
 }
 class FFTIO(points: Int, width: Int) extends Bundle{
   val in = Flipped(Decoupled(Vec(2, FixedPoint(width.W, (width/2).BP))))
@@ -21,7 +21,7 @@ class FFT(points: Int, width: Int) extends Module {
   val outputBufferImag = RegInit(VecInit(Seq.fill(points)(0.F(width.W, (width/2).BP))))
   val butterfly = Module(new ButterflyUnit(width))
   val agu = Module(new AddressGenerationUnit(points))
-  val twiddleRom = Module(new TwiddleFactor(points/2, width))
+  val twiddleRom = Module(new TwiddleFactor(points, width))
   val startCounter = Wire(Bool())
   val startOutput = Wire(Bool())
   val finalOutput = Wire(Bool())
@@ -30,6 +30,7 @@ class FFT(points: Int, width: Int) extends Module {
   val startWait = Wire(Bool())
   val bubble = Reg(FixedPoint(width.W, (width/2).BP))
   val bubble2 = Reg(FixedPoint(width.W, (width / 2).BP))
+
   val (bitReversedCounter, wrap) = Counter(0 until points by 2, startCounter)
   val (bitReversedCounter2, wrap2) = Counter(1 until points by 2, startCounter)
   val (writeClock, writeWrap) = Counter(0 until 2, startWrite)
@@ -38,12 +39,14 @@ class FFT(points: Int, width: Int) extends Module {
   val (outputCounter, outFin) = Counter(0 until points by 2, startOutput)
   val (outputCounter2, outFin2) = Counter(1 until points by 2, startOutput)
   val (outputFinalCounter, finished) = Counter(0 until points, startOutput)
+
   startWait := false.B
   startCounter := false.B
   startOutput := false.B
   startWrite := false.B
   startRead := false.B
   finalOutput := false.B
+
   twiddleRom.io.m := 0.U
   butterfly.io.aReal := 0.F(width.W, (width/2).BP)
   butterfly.io.bReal := 0.F(width.W, (width/2).BP)
@@ -51,6 +54,7 @@ class FFT(points: Int, width: Int) extends Module {
   butterfly.io.bImg := 0.F(width.W, (width/2).BP)
   butterfly.io.twiddleReal := 0.F(width.W, (width/2).BP)
   butterfly.io.twiddleImg := 0.F(width.W, (width/2).BP)
+
   agu.io.advance := false.B
   io.in.ready := true.B
   io.out.bits(0) := 0.F(width.W, (width/2).BP)
@@ -128,7 +132,7 @@ class FFT(points: Int, width: Int) extends Module {
       fftMem.io.realIn2 := RegNext(butterfly.io.doutReal)
 
       fftMem.io.imagIn1 := RegNext(butterfly.io.coutImg)
-      fftMem.io.imagIn1 := RegNext(butterfly.io.doutImg)
+      fftMem.io.imagIn2 := RegNext(butterfly.io.doutImg)
 
       when(readWrap) {
         printf(cf"read stage\n")
@@ -142,15 +146,6 @@ class FFT(points: Int, width: Int) extends Module {
     }
 
     is(FFTState.writeStage){
-      printf(cf"write stage\n")
-      printf(cf"ButterflyOutput\n")
-      printf(cf"A: ${butterfly.io.coutReal.asSInt}|${butterfly.io.coutImg.asSInt}\n")
-      printf(cf"B: ${butterfly.io.doutReal.asSInt}|${butterfly.io.doutImg.asSInt}\n")
-      printf(cf"Memory input\n")
-      printf(cf"A: ${fftMem.io.realIn1.asSInt}|${fftMem.io.imagIn1.asSInt}\n")
-      printf(cf"B: ${fftMem.io.realIn2.asSInt}|${fftMem.io.imagIn2.asSInt}\n")
-      printf(cf"Twiddle: \n${butterfly.io.twiddleReal.asSInt}|${butterfly.io.twiddleImg.asSInt}\n")
-
       startWrite := true.B
       startRead := false.B
       fftMem.io.enable := true.B
@@ -173,15 +168,32 @@ class FFT(points: Int, width: Int) extends Module {
       fftMem.io.realIn2 := RegNext(butterfly.io.doutReal)
 
       fftMem.io.imagIn1 := RegNext(butterfly.io.coutImg)
-      fftMem.io.imagIn1 := RegNext(butterfly.io.doutImg)
+      fftMem.io.imagIn2 := RegNext(butterfly.io.doutImg)
 
-      when(agu.io.done){
+      when(agu.io.done && writeWrap){
+        printf(cf"final stage\n")
+        printf(cf"ButterflyOutput\n")
+        printf(cf"A: ${butterfly.io.coutReal.asSInt}|${butterfly.io.coutImg.asSInt}\n")
+        printf(cf"B: ${butterfly.io.doutReal.asSInt}|${butterfly.io.doutImg.asSInt}\n")
+        printf(cf"Memory input\n")
+        printf(cf"A: ${fftMem.io.realIn1.asSInt}|${fftMem.io.imagIn1.asSInt}\n")
+        printf(cf"B: ${fftMem.io.realIn2.asSInt}|${fftMem.io.imagIn2.asSInt}\n")
+        printf(cf"Twiddle: \n${butterfly.io.twiddleReal.asSInt}|${butterfly.io.twiddleImg.asSInt}\n\n")
         fftState := FFTState.out
-        fftMem.io.read := false.B
         fftMem.io.addr1 := outputFinalCounter
+
       }.elsewhen(writeWrap){
+        printf(cf"write stage\n")
+        printf(cf"ButterflyOutput\n")
+        printf(cf"A: ${butterfly.io.coutReal.asSInt}|${butterfly.io.coutImg.asSInt}\n")
+        printf(cf"B: ${butterfly.io.doutReal.asSInt}|${butterfly.io.doutImg.asSInt}\n")
+        printf(cf"Memory input\n")
+        printf(cf"A: ${fftMem.io.realIn1.asSInt}|${fftMem.io.imagIn1.asSInt}\n")
+        printf(cf"B: ${fftMem.io.realIn2.asSInt}|${fftMem.io.imagIn2.asSInt}\n")
+        printf(cf"Twiddle: \n${butterfly.io.twiddleReal.asSInt}|${butterfly.io.twiddleImg.asSInt}\n\n")
         agu.io.advance := true.B
         fftState := FFTState.calculateStage
+
       }
     }
 
@@ -199,6 +211,7 @@ class FFT(points: Int, width: Int) extends Module {
         fftState := FFTState.idle
       }
     }
+
   }
 
 
