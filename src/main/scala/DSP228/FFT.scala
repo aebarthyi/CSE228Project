@@ -171,6 +171,7 @@ class FFT(points: Int, width: Int) extends Module {
 
       when(agu.io.done && writeWrap){
         fftState := FFTState.out
+        printf(cf"OUTPUT:\n")
 
       }.elsewhen(writeWrap){
         agu.io.advance := true.B
@@ -186,14 +187,13 @@ class FFT(points: Int, width: Int) extends Module {
       fftMem.io.read := true.B
       when(outputFinalCounter > 0.U){
         io.out.valid := true.B
+        printf(cf"${io.out.bits(0).asSInt} + ${io.out.bits(1).asSInt}i\n")
       }
       startOutput := true.B
       fftMem.io.addr1 := outputFinalCounter
       io.out.bits(0) := fftMem.io.realOut1
       io.out.bits(1) := fftMem.io.imagOut1
-      printf(cf"OUTPUT: \n${io.out.bits(0).asSInt}|${io.out.bits(1).asSInt}\n")
       when(finished){
-        printf(cf"CLOCKS: ${timing.asUInt}\n")
         fftState := FFTState.idle
       }
     }

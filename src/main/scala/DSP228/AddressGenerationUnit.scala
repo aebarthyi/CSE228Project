@@ -46,12 +46,10 @@ class AddressGenerationUnit(points: Int) extends Module{
 
   when(io.advance){
     counter.inc()
-    printf(cf"butterfly ${counter.value}\n")
   }
   when(counter.value === ((points/2)-1).U && io.advance){
     shift := true.B
     stageCounter.inc()
-    printf(cf"\n\nstage ${stageCounter.value}\n\n")
   }
   when(stageCounter.value === (log2Ceil(points)-1).U && counter.value === ((points/2)-1).U){
     io.done := true.B
