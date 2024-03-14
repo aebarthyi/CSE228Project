@@ -38,7 +38,7 @@ class FFT(points: Int, width: Int) extends Module {
   val (readWait, waited) = Counter(0 until 4, startWait)
   val (outputCounter, outFin) = Counter(0 until points by 2, startOutput)
   val (outputCounter2, outFin2) = Counter(1 until points by 2, startOutput)
-  val (outputFinalCounter, finished) = Counter(0 until points, startOutput)
+  val (outputFinalCounter, finished) = Counter(0 until (points+1), startOutput)
 
   startWait := false.B
   startCounter := false.B
@@ -180,7 +180,6 @@ class FFT(points: Int, width: Int) extends Module {
         printf(cf"B: ${fftMem.io.realIn2.asSInt}|${fftMem.io.imagIn2.asSInt}\n")
         printf(cf"Twiddle: \n${butterfly.io.twiddleReal.asSInt}|${butterfly.io.twiddleImg.asSInt}\n\n")
         fftState := FFTState.out
-        fftMem.io.addr1 := outputFinalCounter
 
       }.elsewhen(writeWrap){
         printf(cf"write stage\n")
