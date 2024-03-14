@@ -200,7 +200,9 @@ class FFT(points: Int, width: Int) extends Module {
       startWait := false.B
       fftMem.io.enable := true.B
       fftMem.io.read := true.B
-      io.out.valid := true.B
+      when(outputFinalCounter > 0.U){
+        io.out.valid := true.B
+      }
       startOutput := true.B
       fftMem.io.addr1 := outputFinalCounter
       io.out.bits(0) := fftMem.io.realOut1
