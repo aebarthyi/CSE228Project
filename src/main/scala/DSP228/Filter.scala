@@ -36,7 +36,11 @@ class Filter(points: Int, width: Int) extends Module {
 
                 io.out.valid := true.B
                 for (i <- 0 until 2) {
-                    io.out.bits(i) := filter_weights(counter.value)*io.in.bits(i)
+                    when(filter_weights(counter.value) > 0.F(width.W, (width/2).BP)){
+                        io.out.bits(i) := io.in.bits(i)
+                    } .otherwise {
+                        io.out.bits(i) := 0.F(width.W, (width/2).BP)
+                    }
                 }
                 printf("OUTPUT: \n")
                 printf(cf"${io.out.bits(0).asSInt} + ${io.out.bits(1).asSInt}i\n")
@@ -48,7 +52,11 @@ class Filter(points: Int, width: Int) extends Module {
             io.in.ready := false.B
             io.out.valid := true.B
             for (i <- 0 until 2) {
-                io.out.bits(i) := filter_weights(counter.value)*io.in.bits(i)
+                when(filter_weights(counter.value) > 0.F(width.W, (width/2).BP)){
+                        io.out.bits(i) := io.in.bits(i)
+                    } .otherwise {
+                        io.out.bits(i) := 0.F(width.W, (width/2).BP)
+                    }
             }
             printf(cf"${io.out.bits(0).asSInt} + ${io.out.bits(1).asSInt}i\n")
             when(counter.inc()) {
