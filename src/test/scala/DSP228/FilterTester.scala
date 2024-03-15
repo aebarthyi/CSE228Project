@@ -5,10 +5,23 @@ import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
 
 class FilterTester extends AnyFlatSpec with ChiselScalatestTester {
+
+    def lowpass_model(points: Int) : Unit = {
+        print("MODEL OUTPUT: \n")
+        for (i <- 0 until points) {
+            var print = (i + 1).toDouble
+            if (i < points/2) {
+                println(f"$print + $print i")
+            } else {
+                println("0.0 + 0.0 i")
+            }
+        }
+    }
+
     behavior of "Filter"
-    it should "correctly transitions through states" in {
+    it should "correctly low pass filters 8-point FFT" in {
         test(new Filter(8,32)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-            val filter = Seq(1,1,1,1,0,0,0,0)
+            val filter = Seq(1,2,3,4,0,0,0,0)
             dut.io.in.valid.poke(false.B)
             for(i <- 0 until 2){
                 dut.io.in.bits(i).poke(0.F(32.W, 16.BP))
@@ -21,7 +34,7 @@ class FilterTester extends AnyFlatSpec with ChiselScalatestTester {
             for(j <- 0 until 8) {
                 dut.io.in.valid.poke(true.B)
                 for(i <- 0 until 2){
-                    dut.io.in.bits(i).poke(1.F(32.W, 16.BP))
+                    dut.io.in.bits(i).poke((j+1).F(32.W, 16.BP))
                 }
                 dut.io.out.valid.expect(true.B)
                 for(i <- 0 until 2){
@@ -42,6 +55,49 @@ class FilterTester extends AnyFlatSpec with ChiselScalatestTester {
             dut.io.in.ready.expect(true.B)
             dut.io.out.valid.expect(false.B)
             dut.io.curr_state.expect(FilterState.idle)
+
+            lowpass_model(8)
+        }
+    }
+
+    it should "correctly low pass filters 16-point FFT" in {
+        test(new Filter(16,32)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+            val filter = Seq(1,2,3,4,5,6,7,8,0,0,0,0,0,0,0,0)
+            dut.io.in.valid.poke(false.B)
+            for(i <- 0 until 2){
+                dut.io.in.bits(i).poke(0.F(32.W, 16.BP))
+            }
+            dut.io.in.ready.expect(true.B)
+            dut.io.out.valid.expect(false.B)
+            dut.io.curr_state.expect(FilterState.idle)
+            dut.clock.step()
+
+            for(j <- 0 until 16) {
+                dut.io.in.valid.poke(true.B)
+                for(i <- 0 until 2){
+                    dut.io.in.bits(i).poke((j+1).F(32.W, 16.BP))
+                }
+                dut.io.out.valid.expect(true.B)
+                for(i <- 0 until 2){
+                    dut.io.out.bits(i).expect(filter(j).F(32.W, 16.BP))
+                }
+                if (j < 1) {
+                    dut.io.curr_state.expect(FilterState.idle)
+                } else {
+                    dut.io.curr_state.expect(FilterState.streaming)
+                }
+                dut.clock.step()
+            }
+
+            dut.io.in.valid.poke(false.B)
+            for(i <- 0 until 2){
+                dut.io.in.bits(i).poke(0.F(32.W, 16.BP))
+            }
+            dut.io.in.ready.expect(true.B)
+            dut.io.out.valid.expect(false.B)
+            dut.io.curr_state.expect(FilterState.idle)
+
+            lowpass_model(16)
         }
     }
 }
