@@ -5,7 +5,7 @@ import chisel3.experimental.FixedPoint
 import chisel3.util._
 
 object FilterState extends ChiselEnum {
-    val idle, loading, filter, output = Value
+    val idle, streaming = Value
 }
 
 class FilterIO(width: Int) extends Bundle {
@@ -30,7 +30,26 @@ class Filter(points: Int, width: Int) extends Module {
         is(FilterState.idle) {
             io.in.ready := true.B
             when (io.in.fire) {
-                state_r := FilterState.loading
+                state_r := FilterState.streaming
+
+                io.out.valid := true.B
+                for (i <- 0 until 2) {
+                    io.out.bits(i) := io.in.bits(i)
+                }
+
+                counter.inc()
+            }
+        }
+
+        is(FilterState.streaming) {
+            io.in.ready := false.B
+            io.out.valid := true.B
+            for (i <- 0 until 2) {
+                io.out.bits(i) := io.in.bits(i)
+            }
+
+            when(counter.inc()) {
+                state_r := FilterState.idle
             }
         }
     }
