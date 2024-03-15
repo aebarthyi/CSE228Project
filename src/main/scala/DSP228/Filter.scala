@@ -19,7 +19,9 @@ class Filter(points: Int, width: Int) extends Module {
 
     val state_r = RegInit(FilterState.idle)
     val counter = new Counter(points)
-    
+    val weight_data = Seq.tabulate(points)(i => if(i < points/2) {1.F(width.W, (width/2).BP)} else {0.F(width.W, (width/2).BP)})
+    val filter_weights : Vec[FixedPoint] = VecInit(weight_data)
+
     io.in.ready := false.B
     io.out.valid := false.B
     for (i <- 0 until 2) {
