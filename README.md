@@ -17,13 +17,14 @@ After following these steps you will have compiled the project
 1. Complex Multiplier and Tester
 2. Butterfly Unit and Tester
 3. Twiddle Factor ROM and Tester
-4. Bit Reverse model (for use to test the AGU)
+4. Bit Reverse model (for use to test the AGU) and Tester
 5. Memory and Tester
+6. Address Generation Unit and Tester
+7. Forward FFT blocks and Tester
 
 ## Work in progress:
-1. Address Generation Unit
-2. Filters
-3. Forward and Inverse FFT blocks (or singular butterfly units, depending on multipliers specified)
+1. Filters
+2. Inverse FFT blocks (or singular butterfly units, depending on multipliers specified)
 
 ## How to test
 Once the sbt kernel is opened up (Done by step 2 of Getting Started), you can test all of the created tests by running the `test` command.\
@@ -34,3 +35,5 @@ The test classes that are currently supported are:
 3. `ComplexMulModelTester`
 4. `TwiddleFactorTester`
 5. `RAMTester`
+6. `AddressGenerationTester`
+7. `FFTTester`
