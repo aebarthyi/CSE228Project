@@ -24,7 +24,8 @@ After following these steps you will have compiled the project
 
 ## Work in progress:
 1. Filters
-2. Inverse FFT blocks (or singular butterfly units, depending on multipliers specified)
+2. Inverse FFT blocks
+3. Parameterized butterfly units for parallelism
 
 ## How to test
 Once the sbt kernel is opened up (Done by step 2 of Getting Started), you can test all of the created tests by running the `test` command.\
