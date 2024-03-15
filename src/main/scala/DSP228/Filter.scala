@@ -36,7 +36,7 @@ class Filter(points: Int, width: Int) extends Module {
 
                 io.out.valid := true.B
                 for (i <- 0 until 2) {
-                    io.out.bits(i) := io.in.bits(i)
+                    io.out.bits(i) := filter_weights(counter.value)*io.in.bits(i)
                 }
 
                 counter.inc()
@@ -47,7 +47,7 @@ class Filter(points: Int, width: Int) extends Module {
             io.in.ready := false.B
             io.out.valid := true.B
             for (i <- 0 until 2) {
-                io.out.bits(i) := io.in.bits(i)
+                io.out.bits(i) := filter_weights(counter.value)*io.in.bits(i)
             }
 
             when(counter.inc()) {
