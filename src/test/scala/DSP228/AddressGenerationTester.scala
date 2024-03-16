@@ -25,6 +25,7 @@ class AddressGenerationTester extends AnyFlatSpec with ChiselScalatestTester {
   }
   def testAGU(points: Int, stages: Int) = {
     test(new AddressGenerationUnit(points)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+      dut.clock.setTimeout(0)
       dut.io.advance.poke(false.B)
       var addrA = 0
       var addrB = 0
