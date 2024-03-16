@@ -11,7 +11,6 @@ object FilterState extends ChiselEnum {
 class FilterIO(width: Int) extends Bundle {
     val in = Flipped(Decoupled(Vec(2, FixedPoint(width.W, (width/2).BP))))
     val out = Decoupled(Vec(2, FixedPoint(width.W, (width/2).BP)))
-    val curr_state = Output(FilterState())
 }
 
 class Filter(points: Int, width: Int) extends Module {
@@ -64,5 +63,4 @@ class Filter(points: Int, width: Int) extends Module {
             }
         }
     }
-    io.curr_state := state_r
 }
