@@ -4,17 +4,17 @@ import chisel3._
 import chisel3.experimental.FixedPoint
 import chisel3.util._
 
-object FFTState extends ChiselEnum {
+object IFFTState extends ChiselEnum {
   val idle, load, calculateStage, writeStage, out = Value
 }
-class FFTIO(points: Int, width: Int) extends Bundle{
+class IFFTIO(points: Int, width: Int) extends Bundle{
   val in = Flipped(Decoupled(Vec(2, FixedPoint(width.W, (width/2).BP))))
   val out = Decoupled(Vec(2, FixedPoint(width.W, (width/2).BP)))
 }
 
-class FFT(points: Int, width: Int) extends Module {
-  val io = IO(new FFTIO(points, width))
-  val fftState = RegInit(FFTState.idle)
+class IFFT(points: Int, width: Int) extends Module {
+  val io = IO(new IFFTIO(points, width))
+  val ifftState = RegInit(IFFTState.idle)
   val fftMem = Module(new RAM(points, width))
   val butterfly = Module(new ButterflyUnit(width))
   val agu = Module(new AddressGenerationUnit(points))
@@ -59,8 +59,8 @@ class FFT(points: Int, width: Int) extends Module {
   fftMem.io.enable := false.B
   fftMem.io.read := true.B
 
-  switch(fftState){
-    is(FFTState.idle){
+  switch(ifftState){
+    is(IFFTState.idle){
       startTiming := false.B
       io.in.ready := true.B
       fftMem.io.read := true.B
@@ -70,26 +70,26 @@ class FFT(points: Int, width: Int) extends Module {
         startCounter := true.B
         fftMem.io.read := false.B
         fftMem.io.addr1 := Reverse(bitReversedCounter)
-        fftMem.io.realIn1 := io.in.bits(0)
-        fftMem.io.imagIn1 := io.in.bits(1)
-        fftState := FFTState.load
+        fftMem.io.realIn1 := io.in.bits(1)
+        fftMem.io.imagIn1 := io.in.bits(0)
+        ifftState := IFFTState.load
       }
     }
 
-    is(FFTState.load){
+    is(IFFTState.load){
       startTiming := true.B
       fftMem.io.enable := true.B
       fftMem.io.read := false.B
       startCounter := true.B
       fftMem.io.addr1 := Reverse(bitReversedCounter)
-      fftMem.io.realIn1 := io.in.bits(0)
-      fftMem.io.imagIn1 := io.in.bits(1)
+      fftMem.io.realIn1 := io.in.bits(1)
+      fftMem.io.imagIn1 := io.in.bits(0)
       when(wrap){
-        fftState := FFTState.calculateStage
+        ifftState := IFFTState.calculateStage
       }
     }
 
-    is(FFTState.calculateStage) {
+    is(IFFTState.calculateStage) {
       startTiming := true.B
       startWrite := false.B
       startRead := true.B
@@ -119,11 +119,11 @@ class FFT(points: Int, width: Int) extends Module {
       fftMem.io.imagIn2 := RegNext(butterfly.io.doutImg)
 
       when(readWrap) {
-        fftState := FFTState.writeStage
+        ifftState := IFFTState.writeStage
       }
     }
 
-    is(FFTState.writeStage){
+    is(IFFTState.writeStage){
       startTiming := true.B
       startWrite := true.B
       startRead := false.B
@@ -150,16 +150,16 @@ class FFT(points: Int, width: Int) extends Module {
       fftMem.io.imagIn2 := RegNext(butterfly.io.doutImg)
 
       when(agu.io.done && writeWrap){
-        fftState := FFTState.out
+        ifftState := IFFTState.out
         printf(cf"OUTPUT:\n")
 
       }.elsewhen(writeWrap){
         agu.io.advance := true.B
-        fftState := FFTState.calculateStage
+        ifftState := IFFTState.calculateStage
       }
     }
 
-    is(FFTState.out){
+    is(IFFTState.out){
       startTiming := true.B
       fftMem.io.enable := true.B
       fftMem.io.read := true.B
@@ -169,12 +169,13 @@ class FFT(points: Int, width: Int) extends Module {
       }
       startOutput := true.B
       fftMem.io.addr1 := outputFinalCounter
-      io.out.bits(0) := fftMem.io.realOut1
-      io.out.bits(1) := fftMem.io.imagOut1
+      io.out.bits(1) := fftMem.io.realOut1 >> log2Ceil(points)
+      io.out.bits(0) := fftMem.io.imagOut1 >> log2Ceil(points)
       when(finished){
         printf(cf"CLOCKS: ${timing}\n")
-        fftState := FFTState.idle
+        ifftState := IFFTState.idle
       }
     }
+
   }
 }
