@@ -17,17 +17,24 @@ class DSPPipeline(points: Int, width: Int) extends Module {
     val io = IO(new DSPIO(points,width))
     val state_r = RegInit(PipelineState.idle)
     
-    io.in.ready := false.B
-    io.out.valid := false.B
-    for (i <- 0 until 2) {
-        io.out.bits(i) := 0.F(width.W, (width/2).BP)
-    }
+    val forwardFFT = Module(new FFT(points, width))
+    val filter = Module(new Filter(points, width))
+    io.in <> forwardFFT.io.in
+    filter.io.in <> forwardFFT.io.out
+    io.out <> filter.io.out
+    // io.in.ready := false.B
+    // io.out.valid := false.B
+    // for (i <- 0 until 2) {
+    //     io.out.bits(i) := 0.F(width.W, (width/2).BP)
+    // }
 
-    switch(state_r) {
-        is(PipelineState.idle) {
-            io.in.ready := true.B
-            io.out.valid := false.B
-            
-        }
-    }
+    // switch(state_r) {
+    //     is(PipelineState.idle) {
+    //         io.in.ready := true.B
+    //         io.out.valid := false.B
+    //         when (io.in.fire) {
+    //             state_r := PipelineState.forward
+    //         }
+    //     }
+    // }
 }
