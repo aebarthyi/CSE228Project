@@ -41,8 +41,8 @@ class Filter(points: Int, width: Int) extends Module {
                         io.out.bits(i) := 0.F(width.W, (width/2).BP)
                     }
                 }
-                printf("OUTPUT: \n")
-                printf(cf"${io.out.bits(0).asSInt} + ${io.out.bits(1).asSInt}i\n")
+                // printf("OUTPUT: \n")
+                // printf(cf"${io.out.bits(0).asSInt} + ${io.out.bits(1).asSInt}i\n")
                 counter.inc()
             }
         }
@@ -57,7 +57,7 @@ class Filter(points: Int, width: Int) extends Module {
                         io.out.bits(i) := 0.F(width.W, (width/2).BP)
                     }
             }
-            printf(cf"${io.out.bits(0).asSInt} + ${io.out.bits(1).asSInt}i\n")
+            // printf(cf"${io.out.bits(0).asSInt} + ${io.out.bits(1).asSInt}i\n")
             when(counter.inc()) {
                 state_r := FilterState.idle
             }

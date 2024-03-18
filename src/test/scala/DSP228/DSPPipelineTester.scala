@@ -59,7 +59,7 @@ class DSPPipelineTester extends AnyFlatSpec with ChiselScalatestTester {
     }
     def  fft(cSeq: Seq[Complex]): Seq[Complex] = _fft(cSeq, Complex(0,  2), 1)
 
-    def testFFT(dut: DSPPipeline, points: Int, width: Int, input: Seq[Double]): Unit = {
+    def testPipeline(dut: DSPPipeline, points: Int, width: Int, input: Seq[Double]): Unit = {
         for(i <- 0 until points) {
             dut.io.in.valid.poke(true.B)
             dut.io.in.bits(0).poke(input(i).F(width.W, (width/2).BP))
@@ -67,19 +67,18 @@ class DSPPipelineTester extends AnyFlatSpec with ChiselScalatestTester {
             dut.clock.step()
         }
         dut.io.in.valid.poke(false.B)
-        dut.clock.step(points*(points))
+        dut.clock.step((2*points*(points)))
     }
-    
 
     behavior of "DSPPipeline"
-    it should "correctly go thru stages" in {
+    it should "correctly pipeline for 8 points" in {
         test(new DSPPipeline(8,24)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
             val eightPoints= Seq.tabulate(8)(i => i.toDouble)
             dut.clock.setTimeout(0)
             dut.io.in.valid.poke(false.B)
             dut.io.in.ready.expect(true.B)
             dut.io.out.valid.expect(false.B)
-            testFFT(dut, 8, 24, eightPoints)
+            testPipeline(dut, 8, 24, eightPoints)
         }
     }
 }
