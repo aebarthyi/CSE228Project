@@ -11,7 +11,6 @@ object FilterState extends ChiselEnum {
 class FilterIO(width: Int) extends Bundle {
     val in = Flipped(Decoupled(Vec(2, FixedPoint(width.W, (width/2).BP))))
     val out = Decoupled(Vec(2, FixedPoint(width.W, (width/2).BP)))
-    val curr_state = Output(FilterState())
 }
 
 class Filter(points: Int, width: Int) extends Module {
@@ -42,8 +41,8 @@ class Filter(points: Int, width: Int) extends Module {
                         io.out.bits(i) := 0.F(width.W, (width/2).BP)
                     }
                 }
-                printf("OUTPUT: \n")
-                printf(cf"${io.out.bits(0).asSInt} + ${io.out.bits(1).asSInt}i\n")
+                // printf("OUTPUT: \n")
+                // printf(cf"${io.out.bits(0).asSInt} + ${io.out.bits(1).asSInt}i\n")
                 counter.inc()
             }
         }
@@ -58,11 +57,10 @@ class Filter(points: Int, width: Int) extends Module {
                         io.out.bits(i) := 0.F(width.W, (width/2).BP)
                     }
             }
-            printf(cf"${io.out.bits(0).asSInt} + ${io.out.bits(1).asSInt}i\n")
+            // printf(cf"${io.out.bits(0).asSInt} + ${io.out.bits(1).asSInt}i\n")
             when(counter.inc()) {
                 state_r := FilterState.idle
             }
         }
     }
-    io.curr_state := state_r
 }

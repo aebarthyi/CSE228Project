@@ -28,7 +28,6 @@ class FilterTester extends AnyFlatSpec with ChiselScalatestTester {
             }
             dut.io.in.ready.expect(true.B)
             dut.io.out.valid.expect(false.B)
-            dut.io.curr_state.expect(FilterState.idle)
             dut.clock.step()
 
             for(j <- 0 until 8) {
@@ -40,11 +39,6 @@ class FilterTester extends AnyFlatSpec with ChiselScalatestTester {
                 for(i <- 0 until 2){
                     dut.io.out.bits(i).expect(filter(j).F(32.W, 16.BP))
                 }
-                if (j < 1) {
-                    dut.io.curr_state.expect(FilterState.idle)
-                } else {
-                    dut.io.curr_state.expect(FilterState.streaming)
-                }
                 dut.clock.step()
             }
 
@@ -54,7 +48,6 @@ class FilterTester extends AnyFlatSpec with ChiselScalatestTester {
             }
             dut.io.in.ready.expect(true.B)
             dut.io.out.valid.expect(false.B)
-            dut.io.curr_state.expect(FilterState.idle)
 
             lowpass_model(8)
         }
@@ -69,7 +62,6 @@ class FilterTester extends AnyFlatSpec with ChiselScalatestTester {
             }
             dut.io.in.ready.expect(true.B)
             dut.io.out.valid.expect(false.B)
-            dut.io.curr_state.expect(FilterState.idle)
             dut.clock.step()
 
             for(j <- 0 until 16) {
@@ -81,11 +73,6 @@ class FilterTester extends AnyFlatSpec with ChiselScalatestTester {
                 for(i <- 0 until 2){
                     dut.io.out.bits(i).expect(filter(j).F(32.W, 16.BP))
                 }
-                if (j < 1) {
-                    dut.io.curr_state.expect(FilterState.idle)
-                } else {
-                    dut.io.curr_state.expect(FilterState.streaming)
-                }
                 dut.clock.step()
             }
 
@@ -95,7 +82,6 @@ class FilterTester extends AnyFlatSpec with ChiselScalatestTester {
             }
             dut.io.in.ready.expect(true.B)
             dut.io.out.valid.expect(false.B)
-            dut.io.curr_state.expect(FilterState.idle)
 
             lowpass_model(16)
         }
