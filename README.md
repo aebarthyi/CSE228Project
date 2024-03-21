@@ -27,6 +27,7 @@ After following these steps you will have compiled the project
 ## Work in progress:
 1. Debugging issues with loading real and imaginary values together for forward FFT and inverse FFT
 2. Parameterized butterfly units for parallelism
+3. More complicated filters
 
 ## How to test
 Once the sbt kernel is opened up (Done by step 2 of Getting Started), you can test all of the created tests by running the `test` command.\
