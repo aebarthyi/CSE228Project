@@ -74,9 +74,9 @@ class FFTTester extends AnyFlatSpec with ChiselScalatestTester{
   }
 
   behavior of "FFT"
-  it should "correctly calculate addresses for 4 points, 2 stages" in {
-    val fourPointsR= Seq(28.0,-4.0,-4.0,-4.0)
-    val fourPointsI= Seq(0.0,-9.657,-4.0,-1.657)
+  it should "correctly calculate FFT for 4 points, 2 stages" in {
+    val fourPointsR= Seq.tabulate(4)(i => i.toDouble)
+    val fourPointsI= Seq.fill(4)(0.0)
     testFFT(4, 24, fourPointsR, fourPointsI)
     val data = Seq.tabulate(4)(i => Complex(fourPointsR(i), fourPointsI(i)))
     println("Model OUTPUT: ")
@@ -85,13 +85,24 @@ class FFTTester extends AnyFlatSpec with ChiselScalatestTester{
     }
   }
 
-  it should "correctly calculate addresses for 8 points, 3 stages" in {
-    val eightPointsR= Seq(28.0,-4.0,-4.0,-4.0,0.0,0.0,0.0,0.0)
-    val eightPointsI= Seq(0.0,-9.657,-4.0,-1.657,0.0,0.0,0.0,0.0)
+  it should "correctly calculate FFT for 8 points, 3 stages" in {
+    val eightPointsR= Seq.tabulate(8)(i => i.toDouble)
+    val eightPointsI= Seq.fill(8)(0.0)
     testFFT(8, 24, eightPointsR, eightPointsI)
     val data = Seq.tabulate(8)(i => Complex(eightPointsR(i), eightPointsI(i)))
     println("Model OUTPUT: ")
     for(i <- 0 until 8){
+      print(fft(data)(i))
+    }
+  }
+
+  it should "correctly calculate FFT for 16 points, 4 stages" in {
+    val sixteenPointsR= Seq.tabulate(16)(i => i.toDouble)
+    val sixteenPointsI= Seq.fill(16)(0.0)
+    testFFT(16, 24, sixteenPointsR, sixteenPointsI)
+    val data = Seq.tabulate(16)(i => Complex(sixteenPointsR(i), sixteenPointsI(i)))
+    println("Model OUTPUT: ")
+    for(i <- 0 until 16){
       print(fft(data)(i))
     }
   }
