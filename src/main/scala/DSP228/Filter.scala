@@ -65,16 +65,27 @@ class Filter(points: Int, width: Int) extends Module {
 
     val state_r = RegInit(FilterState.idle)
     val counter = new Counter(points)
-    val weight_data = Seq.tabulate(points)(i => if(i < points/2) {1.F(width.W, (width/2).BP)} else {0.F(width.W, (width/2).BP)})
-    val filter_weights : Vec[FixedPoint] = VecInit(weight_data)
+
+
+    // select one of the bottom example filters as desired
+    val filter_fft_in = Seq.tabulate(points)(i => if(i < points/2) {Complex(1, 0)} else {Complex(0, 0)}) // example low-pass filter (hard stop after n/2 points)
+    // val filter_fft_in = Seq.tabulate(points)(i => if(i < points/2) {Complex(0, 0)} else {Complex(1, 0)}) // example high-pass filter (hard stop before n/2 points)
+    // val filter_fft_in = Seq.tabulate(points)(i => if((i < points/4) || (i > (3*points/4))) {Complex(0, 0)} else {Complex(1, 0)}) // example band-pass filter (points n/4 to 3n/4 pass through)
+    // val filter_fft_in = Seq.tabulate(points)(i => if((i < points/4) || (i > (3*points/4))) {Complex(1, 0)} else {Complex(0, 0)}) // example band-stop filter (points n/4 to 3n/4 are hard-stopped through)
+    
+    val filter_fft_out_real = Seq.tabulate(points)(i => (fft(filter_fft_in)(i).re).F(width.W, (width/2).BP))
+    val filter_fft_out_imag = Seq.tabulate(points)(i => (fft(filter_fft_in)(i).im).F(width.W, (width/2).BP))
+    
+    val filter_weights_real : Vec[FixedPoint] = VecInit(filter_fft_out_real)
+    val filter_weights_imag : Vec[FixedPoint] = VecInit(filter_fft_out_imag)
     val complexMult = Module(new ComplexMul(width))
     io.in.ready := false.B
     io.out.valid := false.B
 
     complexMult.io.aReal := io.in.bits(0)
     complexMult.io.aImg := io.in.bits(1)
-    complexMult.io.bReal := filter_weights(counter.value)
-    complexMult.io.bImg := filter_weights(counter.value)
+    complexMult.io.bReal := filter_weights_real(counter.value)
+    complexMult.io.bImg := filter_weights_imag(counter.value)
     io.out.bits(0) := complexMult.io.realOut
     io.out.bits(1) := complexMult.io.imgOut
 

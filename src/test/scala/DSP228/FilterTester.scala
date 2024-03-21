@@ -5,19 +5,6 @@ import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
 
 class FilterTester extends AnyFlatSpec with ChiselScalatestTester {
-
-    def lowpass_model(points: Int) : Unit = {
-        print("MODEL OUTPUT: \n")
-        for (i <- 0 until points) {
-            var print = (i + 1).toDouble
-            if (i < points/2) {
-                println(f"$print + $print i")
-            } else {
-                println("0.0 + 0.0 i")
-            }
-        }
-    }
-
     behavior of "Filter"
     it should "correctly low pass filters 8-point FFT" in {
         test(new Filter(8,32)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
