@@ -67,12 +67,16 @@ class Filter(points: Int, width: Int) extends Module {
     val counter = new Counter(points)
     val weight_data = Seq.tabulate(points)(i => if(i < points/2) {1.F(width.W, (width/2).BP)} else {0.F(width.W, (width/2).BP)})
     val filter_weights : Vec[FixedPoint] = VecInit(weight_data)
-
+    val complexMult = Module(new ComplexMul(width))
     io.in.ready := false.B
     io.out.valid := false.B
-    for (i <- 0 until 2) {
-        io.out.bits(i) := 0.F(width.W, (width/2).BP)
-    }
+
+    complexMult.io.aReal := io.in.bits(0)
+    complexMult.io.aImg := io.in.bits(1)
+    complexMult.io.bReal := filter_weights(counter.value)
+    complexMult.io.bImg := filter_weights(counter.value)
+    io.out.bits(0) := complexMult.io.realOut
+    io.out.bits(1) := complexMult.io.imgOut
 
     switch(state_r) {
         is(FilterState.idle) {
@@ -81,15 +85,8 @@ class Filter(points: Int, width: Int) extends Module {
                 state_r := FilterState.streaming
 
                 io.out.valid := true.B
-                for (i <- 0 until 2) {
-                    when(filter_weights(counter.value) > 0.F(width.W, (width/2).BP)){
-                        io.out.bits(i) := io.in.bits(i)
-                    } .otherwise {
-                        io.out.bits(i) := 0.F(width.W, (width/2).BP)
-                    }
-                }
-                // printf("OUTPUT: \n")
-                // printf(cf"${io.out.bits(0).asSInt} + ${io.out.bits(1).asSInt}i\n")
+                printf("OUTPUT: \n")
+                printf(cf"${io.out.bits(0).asSInt} + ${io.out.bits(1).asSInt}i\n")
                 counter.inc()
             }
         }
@@ -97,14 +94,7 @@ class Filter(points: Int, width: Int) extends Module {
         is(FilterState.streaming) {
             io.in.ready := false.B
             io.out.valid := true.B
-            for (i <- 0 until 2) {
-                when(filter_weights(counter.value) > 0.F(width.W, (width/2).BP)){
-                        io.out.bits(i) := io.in.bits(i)
-                    } .otherwise {
-                        io.out.bits(i) := 0.F(width.W, (width/2).BP)
-                    }
-            }
-            // printf(cf"${io.out.bits(0).asSInt} + ${io.out.bits(1).asSInt}i\n")
+            printf(cf"${io.out.bits(0).asSInt} + ${io.out.bits(1).asSInt}i\n")
             when(counter.inc()) {
                 state_r := FilterState.idle
             }
