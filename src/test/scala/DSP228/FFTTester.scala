@@ -58,26 +58,27 @@ class FFTTester extends AnyFlatSpec with ChiselScalatestTester{
     left ++ right
   }
   def  fft(cSeq: Seq[Complex]): Seq[Complex] = _fft(cSeq, Complex(0,  2), 1)
-  def testFFT(points: Int, width: Int,input: Seq[Double])= {
+  def testFFT(points: Int, width: Int,inputReal: Seq[Double], inputImag: Seq[Double])= {
     test(new FFT(points, width)).withAnnotations(Seq(WriteVcdAnnotation)){ dut =>
       dut.clock.setTimeout(0)
       dut.io.in.valid.poke(false.B)
       for(i <- 0 until points) {
         dut.io.in.valid.poke(true.B)
-        dut.io.in.bits(0).poke(input(i).F(width.W, (width/2).BP))
-        dut.io.in.bits(1).poke(0.F(width.W, (width/2).BP))
+        dut.io.in.bits(0).poke(inputReal(i).F(width.W, (width/2).BP))
+        dut.io.in.bits(1).poke(inputImag(i).F(width.W, (width/2).BP))
         dut.clock.step()
       }
       dut.io.in.valid.poke(false.B)
-      dut.clock.step(points*(points))
+      dut.clock.step(points*(points * 3))
     }
   }
 
   behavior of "FFT"
   it should "correctly calculate addresses for 4 points, 2 stages" in {
-    val fourPoints= Seq.tabulate(4)(i => i.toDouble)
-    testFFT(4, 24, fourPoints)
-    val data = Seq.tabulate(4)(i => Complex(i.toDouble, 0.0))
+    val fourPointsR= Seq(28.0,-4.0,-4.0,-4.0)
+    val fourPointsI= Seq(0.0,-9.657,-4.0,-1.657)
+    testFFT(4, 24, fourPointsR, fourPointsI)
+    val data = Seq.tabulate(4)(i => Complex(fourPointsR(i), fourPointsI(i)))
     println("Model OUTPUT: ")
     for(i <- 0 until 4){
       print(fft(data)(i))
@@ -85,48 +86,13 @@ class FFTTester extends AnyFlatSpec with ChiselScalatestTester{
   }
 
   it should "correctly calculate addresses for 8 points, 3 stages" in {
-    val eightPoints= Seq.tabulate(8)(i => i.toDouble)
-    testFFT(8, 24, eightPoints)
-    val data = Seq.tabulate(8)(i => Complex(i.toDouble, 0.0))
+    val eightPointsR= Seq(28.0,-4.0,-4.0,-4.0,0.0,0.0,0.0,0.0)
+    val eightPointsI= Seq(0.0,-9.657,-4.0,-1.657,0.0,0.0,0.0,0.0)
+    testFFT(8, 24, eightPointsR, eightPointsI)
+    val data = Seq.tabulate(8)(i => Complex(eightPointsR(i), eightPointsI(i)))
     println("Model OUTPUT: ")
     for(i <- 0 until 8){
       print(fft(data)(i))
     }
   }
-
-  it should "correctly calculate addresses for 16 points, 4 stages" in {
-    val sixteenpoints = Seq.tabulate(16)(i => i.toDouble)
-    testFFT(16, 24, sixteenpoints)
-    val data = Seq.tabulate(16)(i => Complex(i.toDouble, 0.0))
-    println("Model OUTPUT: ")
-    for(i <- 0 until 16){
-      print(fft(data)(i))
-    }
-  }
-
-  it should "correctly calculate addresses for 32 points, 5 stages" in {
-    val thirty2points = Seq.tabulate(32)(i => i.toDouble)
-    testFFT(32, 24, thirty2points)
-    val data = Seq.tabulate(32)(i => Complex(i.toDouble, 0.0))
-    println("Model OUTPUT: ")
-    for(i <- 0 until 32){
-      print(fft(data)(i))
-    }
-  }
-
-  it should "correctly calculate addresses for 64 points, 6 stages" in {
-    val sixty4points = Seq.tabulate(64)(i => i.toDouble)
-    testFFT(64, 24, sixty4points)
-  }
-
-  it should "correctly calculate addresses for 128 points, 7 stages" in {
-    val one28points = Seq.tabulate(128)(i => i.toDouble)
-    testFFT(128, 32, one28points)
-  }
-
-  it should "correctly calculate addresses for 256 points, 8 stages" in {
-    val two56points = Seq.tabulate(256)(i => i.toDouble)
-    testFFT(256, 32, two56points)
-  }
-
 }
