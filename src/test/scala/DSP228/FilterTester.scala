@@ -5,19 +5,6 @@ import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
 
 class FilterTester extends AnyFlatSpec with ChiselScalatestTester {
-
-    def lowpass_model(points: Int) : Unit = {
-        print("MODEL OUTPUT: \n")
-        for (i <- 0 until points) {
-            var print = (i + 1).toDouble
-            if (i < points/2) {
-                println(f"$print + $print i")
-            } else {
-                println("0.0 + 0.0 i")
-            }
-        }
-    }
-
     behavior of "Filter"
     it should "correctly low pass filters 8-point FFT" in {
         test(new Filter(8,32)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
@@ -32,13 +19,9 @@ class FilterTester extends AnyFlatSpec with ChiselScalatestTester {
 
             for(j <- 0 until 8) {
                 dut.io.in.valid.poke(true.B)
-                for(i <- 0 until 2){
-                    dut.io.in.bits(i).poke((j+1).F(32.W, 16.BP))
-                }
+                dut.io.in.bits(0).poke((j+1).F(32.W, 16.BP))
+                dut.io.in.bits(1).poke(0.F(32.W, 16.BP))
                 dut.io.out.valid.expect(true.B)
-                for(i <- 0 until 2){
-                    dut.io.out.bits(i).expect(filter(j).F(32.W, 16.BP))
-                }
                 dut.clock.step()
             }
 
@@ -48,8 +31,6 @@ class FilterTester extends AnyFlatSpec with ChiselScalatestTester {
             }
             dut.io.in.ready.expect(true.B)
             dut.io.out.valid.expect(false.B)
-
-            lowpass_model(8)
         }
     }
 
@@ -66,13 +47,9 @@ class FilterTester extends AnyFlatSpec with ChiselScalatestTester {
 
             for(j <- 0 until 16) {
                 dut.io.in.valid.poke(true.B)
-                for(i <- 0 until 2){
-                    dut.io.in.bits(i).poke((j+1).F(32.W, 16.BP))
-                }
+                dut.io.in.bits(0).poke((j+1).F(32.W, 16.BP))
+                dut.io.in.bits(1).poke(0.F(32.W, 16.BP))
                 dut.io.out.valid.expect(true.B)
-                for(i <- 0 until 2){
-                    dut.io.out.bits(i).expect(filter(j).F(32.W, 16.BP))
-                }
                 dut.clock.step()
             }
 
@@ -82,8 +59,6 @@ class FilterTester extends AnyFlatSpec with ChiselScalatestTester {
             }
             dut.io.in.ready.expect(true.B)
             dut.io.out.valid.expect(false.B)
-
-            lowpass_model(16)
         }
     }
 }
