@@ -10,6 +10,8 @@ import chisel3.util._
 // For an N-point input signal, N cycles taken to stream in input and N cycles to stream output out.
 // Takes in original digital signal, computes FFT, filters it, computes inverse FFT to reconstruct 
 // signal and outputs the filtered signal.
+// Input and output samples are complex i.e. contain  Real and imaginary parts which are represented as
+// FixedPoint data
 // Can parameterize number of points in the FFT but MUST BE POWER OF 2!! 
 // Can also parameterize bit width of input signal.
 
