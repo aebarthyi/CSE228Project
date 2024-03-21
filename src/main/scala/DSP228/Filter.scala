@@ -13,6 +13,15 @@ class FilterIO(width: Int) extends Bundle {
     val out = Decoupled(Vec(2, FixedPoint(width.W, (width/2).BP)))
 }
 
+// Description: Filter Module. Filters out undesired frequencies from the FFT output
+// Works by creating a frequency domain response for a desired filter, using a complex multiplier
+// to compute the product of this response with the frequency response of the input signal 
+// (output of the FFT). The product is streamed out from the filter module and the input signal 
+// is streamed in. N point filtering takes N cycles.
+// Currently supported hardcoded filters: Low-pass, high-pass, band-pass and band-stop
+// Instructions on how to use various filter modes shown below.
+// Can parameterize number of points and bit width according to the original signal.
+
 class Filter(points: Int, width: Int) extends Module {
     //fftModel from Rosetta code: https://rosettacode.org/wiki/Fast_Fourier_transform#Scala
     import scala.math.{ Pi, cos, sin, cosh, sinh, abs }

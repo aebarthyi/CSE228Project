@@ -3,6 +3,12 @@ import chisel3._
 import chisel3.util._
 import chisel3.experimental.FixedPoint
 
+// Description: RAM Module. Random Access Memory that stores inputs and outputs 
+// of the butterfly modules, which allow for the near-memory FFT/IFFT computation.
+// Internally uses two separate SyncReadMems, one for real-values, one for imaginary-values
+// Can parameterize capacity of the the RAM as needed by the desired FFT computation depth.
+// Can also parameterize bit width of the data being stored.
+
 class RAMUnitIO(NumEntries: Int, width: Int) extends Bundle {
     // enable signal
     val enable = Input(Bool())
