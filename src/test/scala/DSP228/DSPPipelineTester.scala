@@ -82,24 +82,6 @@ class DSPPipelineTester extends AnyFlatSpec with ChiselScalatestTester {
             dut.io.in.ready.expect(true.B)
             dut.io.out.valid.expect(false.B)
             testPipeline(dut, 8, 24, eightPoints)
-
-            val data = Seq.tabulate(8)(i => Complex(i.toDouble, 0.0))
-            println("Model OUTPUT: ")
-            println("FFT: ")
-            val fftOut = Seq.tabulate(8)(i => fft(data)(i))
-            for(i <- 0 until 8){
-                print(fftOut(i))
-            }
-            val filteredFFT = Seq.tabulate(8) (i => if(i < 4) {fftOut(i)} else {Complex(0.0, 0.0)})
-            println("Filter: ")
-            for(i <- 0 until 8){
-                print(filteredFFT(i))
-            }
-            val ifftOut = Seq.tabulate(8)(i => rfft(filteredFFT)(i))
-            println("IFFT: ")
-            for(i <- 0 until 8){
-                print(ifftOut(i))
-            }
         }
     }
 }

@@ -23,6 +23,7 @@ After following these steps you will have compiled the project
 7. Forward FFT blocks and Tester (Works for real signals, currently has a bug in loading both real and imaginary values together)
 8. Filters (Hardcoded low-pass, high-pass, band-pass and band-stop) and Tester
 9. Inverse FFT blocks and Tester (Works for real signals, currently has a bug in loading both real and imaginary values together)
+10. DSPPipeline (Top module encapsulating the pipeline, connecting stages together)
 
 ## Work in progress:
 1. Debugging issues with loading real and imaginary values together for forward FFT and inverse FFT
