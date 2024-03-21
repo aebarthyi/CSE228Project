@@ -20,8 +20,8 @@ class TwiddleFactorTester extends AnyFlatSpec with ChiselScalatestTester {
                 dut.io.m.poke(j.U)
                 val twiddleTuple = twiddleFactorModel(j,16)
                 println(dut.io.twiddleFactorReal.peek() + "|" + dut.io.twiddleFactorImag.peek())
-                dut.io.twiddleFactorReal.expect(twiddleTuple._1.F(32.W, 30.BP))
-                dut.io.twiddleFactorImag.expect(twiddleTuple._2.F(32.W, 30.BP))
+                dut.io.twiddleFactorReal.expect(twiddleTuple._1.F(32.W, 16.BP))
+                dut.io.twiddleFactorImag.expect(twiddleTuple._2.F(32.W, 16.BP))
             }
         }
     }
