@@ -20,12 +20,13 @@ After following these steps you will have compiled the project
 4. Bit Reverse model (for use to test the AGU) and Tester
 5. Memory and Tester
 6. Address Generation Unit and Tester
-7. Forward FFT blocks and Tester (Works for real signals)
+7. Forward FFT blocks and Tester (Works for real signals, currently has a bug in loading both real and imaginary values together)
 8. Filters (Hardcoded low-pass, high-pass, band-pass and band-stop) and Tester
-9. Inverse FFT blocks and Tester (Works for real signals)
+9. Inverse FFT blocks and Tester (Works for real signals, currently has a bug in loading both real and imaginary values together)
 
 ## Work in progress:
-1. Parameterized butterfly units for parallelism
+1. Debugging issues with loading real and imaginary values together for forward FFT and inverse FFT
+2. Parameterized butterfly units for parallelism
 
 ## How to test
 Once the sbt kernel is opened up (Done by step 2 of Getting Started), you can test all of the created tests by running the `test` command.\
@@ -38,3 +39,6 @@ The test classes that are currently supported are:
 5. `RAMTester`
 6. `AddressGenerationTester`
 7. `FFTTester`
+8. `FilterTester`
+9. `IFFTTester`
+10. `DSPPipelineTester`
